@@ -1,4 +1,7 @@
 
+-- Author: Juan Abadia
+-- Date: 2015-07-09
+
 struct TCollapseMaterials (
 	  resolution = 512
 	, tmp_channel = 4
@@ -16,6 +19,7 @@ struct TCollapseMaterials (
 		catch()
 	)
 
+	-------------------------------------------
 	, fn moveUVCoords obj srcUV destUV = (
 		try (
 			local channel_type = 3		-- Map
@@ -27,6 +31,7 @@ struct TCollapseMaterials (
 		catch()
 	)
 
+	-------------------------------------------
 	, fn renderToTextureObjMaterial obj size target_channel = (
 		if obj == undefined then return false
 		obj.iNodeBakeProperties.removeAllBakeElements()
@@ -57,10 +62,12 @@ struct TCollapseMaterials (
 		return be1.fileType
 	)
 
+	-------------------------------------------
 	, fn deleteAllModifiers obj = (
 		while obj.modifiers.count != 0 do  deleteModifier obj 1
 	)
 
+	-------------------------------------------
 	, fn remapObject obj new_channel = (
 		
 		-- Create a new UVW modifier
@@ -75,6 +82,7 @@ struct TCollapseMaterials (
 		-- Add it to the object
 		addmodifier obj newUVW
 		
+		-- format "Packing UV's\n"
 		-- 1 -> Recursive algorithm
 		-- Spacing amountm
 		-- Normalize | Rotate | Fill holes
@@ -86,14 +94,23 @@ struct TCollapseMaterials (
 
 	-- Main entry point
 	, fn collapseDiffuse obj = (
+		if obj == undefined then return false
 		deleteAllModifiers obj
+
+		-- This is not really required
 		remapObject obj tmp_channel
+		
 		local new_filename = renderToTextureObjMaterial obj resolution tmp_channel
 		moveUVCoords obj tmp_channel 1
+
+		-- Create a new material with the created texture
 		obj.mat = standard diffusemap:(bitmaptexture filename:new_filename name:"MapDiffuse")
 		obj.mat.showInViewport = on
 	)
+
 )
 
-cd = TCollapseMaterials resolution:512
-cd.collapseDiffuse $ 
+-------------------------------------------
+-- Example usage to apply it to the current selected object
+-- cd = TCollapseMaterials resolution:512
+-- cd.collapseDiffuse $
