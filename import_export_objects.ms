@@ -32,18 +32,19 @@ struct TIOFiles (
 	)
 	-------------------------------------
 	, fn importFromFilesAndSubFoldersAndApply callback folder: depth:0 = (
-		if folder == unsupplied then folder = the_root_folder
+		local use_folder = root_folder
+		if folder != unsupplied then use_folder = folder
 			
 		-- Scan files, and apply the callback to each file
-		local files = getFiles (folder + "/*" + extension)
+		local files = getFiles (use_folder + "/*" + extension)
 		for f in files do (
 			callback f
 		)
 		-- Now children folders
-		local folders = getDirectories (folder + "/*")
+		local folders = getDirectories (use_folder + "/*")
 		for f in folders do (
 			format "Entering subfolder %\n" f
-			importFilesAndSubFoldersAndApply callback folder:f depth:(depth+1)
+			importFromFilesAndSubFoldersAndApply callback folder:f depth:(depth+1)
 			format "Leaving subfolder %\n" f
 		)
 	)
@@ -65,8 +66,8 @@ fn testExport = (
 
 fn testImport = (
 	local ef = TIOFiles root_folder:(getDir #scene)
-	ef.importFilesAndSubFoldersAndApply doImportFile
+	ef.importFromFilesAndSubFoldersAndApply doImportFile
 )
 
-testExport()
---testImport()
+--testExport()
+testImport()
