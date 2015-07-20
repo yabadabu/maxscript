@@ -43,4 +43,4 @@ fn saveSeletionsSetsToFiles out_path: = (
 	(timestamp() - st ) / 1000
 )
 
-saveSeletionsSetsToFiles()
+--saveSeletionsSetsToFiles()
