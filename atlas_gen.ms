@@ -8,7 +8,7 @@ struct TAtlasTask (
 struct TAtlasGen (
 	in_materials = #()
 , 	map_channel = 1
-,  	out_resolution = 512
+,  	out_resolution = 1024
 , 	out_atlas_size = 8			-- 8 x 8
 , 	out_inv_scale = 1. / out_atlas_size
 , 	out_material
@@ -101,10 +101,15 @@ struct TAtlasGen (
 	local scaled_bitmap = Bitmap slot_res slot_res
 	local idx = 0
 	for m in in_materials do (
+		format "Processing mat %\n" m
 		local ic = getAtlasPixelCoordsOfSlot idx
 		local texture = getproperty m material_slot
 		if texture != undefined then (
-			copy texture.bitmap scaled_bitmap
+			if classof texture == Bitmaptexture then (
+				copy texture.bitmap scaled_bitmap
+			) else if classof texture == Normal_Bump then (
+				copy texture.normal_map.bitmap scaled_bitmap
+			)
 			pasteBitmap scaled_bitmap out_bitmap [0,0] ic type:#paste
 		)
 		idx = idx + 1
@@ -141,6 +146,7 @@ struct TAtlasGen (
 	local uvw = Unwrap_UVW()
 	uvw.setMapChannel map_channel
 	addmodifier obj uvw
+	max modify mode
 	select obj
 	subobjectLevel = 3 
 	
@@ -179,5 +185,5 @@ struct TAtlasGen (
 
 -------------------------------------------
 -- Example usage to apply it to the current selected objects
---ag = TAtlasGen out_atlas_size:4
+--ag = TAtlasGen out_atlas_size:8
 --ag.generate ($* as array)
